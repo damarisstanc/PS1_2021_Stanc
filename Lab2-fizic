@@ -1,0 +1,77 @@
+//Pentru proiectul fizic nu am gasit sa cumpar senzor LM35
+//In loc de senzor LM35 am folosit un senzor BMP180 si cu ajutorul bibliotecii SFE_BMP180.h am folosit
+//o functie care imi returneaza direct temperatura in grade celsius
+//Codul pentru senzorul LM35 l-am testat pe tinkercad si se gaseste in Lab2
+
+#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <SFE_BMP180.h>
+
+SFE_BMP180 bmp180;
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+int sec=00;
+int min=00;
+int hr=12;
+int i=0;
+int j=0;
+
+void setup() {
+lcd.begin(16,2);
+bmp180.begin();
+}
+
+double Temp;
+
+void loop() {
+lcd.clear();
+lcd.setCursor(0,0);
+lcd.print("Temp: ");
+lcd.setCursor(6,0);
+
+Temp=getTemp(); //functie care returneaza temperatura in grade celsius
+if(Temp!=999 && Temp<80)  //temperatura maxima pe care o poate masura senzoorul este 85'C
+lcd.print(Temp);
+else lcd.print("Nu merge!");
+
+lcd.setCursor(0,1);
+lcd.print("Ora:");
+lcd.setCursor(5,1);
+lcd.print(hr);
+lcd.setCursor(7,1);
+lcd.print(":");
+lcd.print(min);
+lcd.setCursor(10,1);
+lcd.print(":");
+lcd.print(sec);
+sec=sec+1;
+delay(1000);
+
+if(sec == 60){
+  sec=00;
+  min=min+1; 
+}else;
+if(min == 60){
+  min=0;
+  hr=hr+1;
+}else;
+
+lcd.clear();
+}
+
+double getTemp()    //functie care returneaza temperatura in grade celsius
+{
+  char status;
+  double Temp,newTemp;
+  status = bmp180.startTemperature();
+
+    if (status != 0)
+   {
+    delay(status);
+    status = bmp180.getTemperature(Temp);
+        if (status != 0)
+            newTemp = Temp;
+        return newTemp;    
+    }
+  else return 999;
+}
